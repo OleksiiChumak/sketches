@@ -1,4 +1,4 @@
-const BALLS_COUNT = 2;
+const BALLS_COUNT = 5;
 
 const BALL_SPEED = 2;
 const BALL_SIZE = 5;
@@ -14,17 +14,20 @@ const BOX_SIZE = Math.sqrt(2) * EFFECTIVE_BALL_RADIUS;
 let balls = [];
 
 function setup() {
-    createCanvas(300, 300);
+    createCanvas(200, 200);
+    colorMode(HSL);
     let randomSpeed = () => random() >= 0.5 ? BALL_SPEED : -BALL_SPEED;
 
     for (let i = 0; i < BALLS_COUNT; i++) {
         balls.push(new Ball(random(width), random(height), randomSpeed(), randomSpeed()));
     }
-    background(toColor(0));
+    background(bgColor());
 }
 
 function draw() {
     loadPixels();
+    clearBallsBg();
+    balls.forEach(ball => ball.move());
     balls.forEach(ball => {
         let nearBalls = balls.filter(nearBall => distance(nearBall.x, nearBall.y, ball.x, ball.y) < 2 * BOX_SIZE);
         for (let i = max(0, ball.x - EFFECTIVE_BALL_RADIUS); i < min(width, ball.x + EFFECTIVE_BALL_RADIUS); i++) {
@@ -34,7 +37,20 @@ function draw() {
         }
     });
     updatePixels();
-    balls.forEach(ball => ball.move());
+}
+
+function clearBallsBg() {
+    balls.forEach(ball => {
+        for (let i = max(0, ball.x - EFFECTIVE_BALL_RADIUS); i < min(width, ball.x + EFFECTIVE_BALL_RADIUS); i++) {
+            for (let j = max(0, ball.y - EFFECTIVE_BALL_RADIUS); j < min(height, ball.y + EFFECTIVE_BALL_RADIUS); j++) {
+                set(i, j, bgColor());
+            }
+        }
+    });
+}
+
+function bgColor() {
+    return toColor(sigm(BOX_SIZE));
 }
 
 function updatePixel(x, y, balls) {
@@ -45,11 +61,11 @@ function updatePixel(x, y, balls) {
 
 function reduce(arr) {
     let res = arr.reduce((a, b) => a + b, 0);
-    return min(res, 1 - M);
+    return min(res, 1 - 2 * M); //2*M looks better
 }
 
 function toColor(val) {
-    return color(255 * val);
+    return color(200 + (280 - 200) * val, 100, 50, 1);
 }
 
 // Changed variant of https://en.wikipedia.org/wiki/Sigmoid_function
