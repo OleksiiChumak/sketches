@@ -1,47 +1,60 @@
-const BALLS_COUNT = 5;
+const BALLS_COUNT = 2;
 
 const BALL_SPEED = 2;
 const BALL_SIZE = 5;
 const SLOPE = 0.4;
 
+//Strange Math
+const M = 0.01; // (1 - M) is maximum of sigm()
+const BIAS = Math.log(M / (1 - M)); // Bias for convenience. If BALL_SIZE = 0, then sigm(0) = M
+const EFFECTIVE_BALL_RADIUS = (Math.log((1 - M) / M) - (BIAS - BALL_SIZE)) / SLOPE;
+const BOX_SIZE = Math.sqrt(2) * EFFECTIVE_BALL_RADIUS;
+//End Strange Math
+
 let balls = [];
 
 function setup() {
-    createCanvas(150, 150);
+    createCanvas(300, 300);
     let randomSpeed = () => random() >= 0.5 ? BALL_SPEED : -BALL_SPEED;
 
     for (let i = 0; i < BALLS_COUNT; i++) {
         balls.push(new Ball(random(width), random(height), randomSpeed(), randomSpeed()));
     }
-
+    background(toColor(0));
 }
 
 function draw() {
     loadPixels();
-    for (let i = 0; i < width; i++) {
-        for (let j = 0; j < height; j++) {
-            updatePixel(i, j);
+    balls.forEach(ball => {
+        let nearBalls = balls.filter(nearBall => distance(nearBall.x, nearBall.y, ball.x, ball.y) < 2 * BOX_SIZE);
+        for (let i = max(0, ball.x - EFFECTIVE_BALL_RADIUS); i < min(width, ball.x + EFFECTIVE_BALL_RADIUS); i++) {
+            for (let j = max(0, ball.y - EFFECTIVE_BALL_RADIUS); j < min(height, ball.y + EFFECTIVE_BALL_RADIUS); j++) {
+                updatePixel(i, j, nearBalls);
+            }
         }
-    }
+    });
     updatePixels();
     balls.forEach(ball => ball.move());
 }
 
-function updatePixel(x, y) {
-    let dist = reduce(balls.map(b => distance(x, y, b.x, b.y)).map(sigm));
-
-    set(x, y, color(255 * dist));
+function updatePixel(x, y, balls) {
+    let val = reduce(balls.map(b => distance(x, y, b.x, b.y)).map(sigm));
+    set(x, y, toColor(val));
 }
 
-function sigm(dist) {
-    let m = 0.01; //should be small, no solution if zero
-    let d = log(m / (1 - m)); //special bias so sigm(0) = m
-    return 1 / (1 + exp(dist * SLOPE - BALL_SIZE + d));
-}
 
 function reduce(arr) {
     let res = arr.reduce((a, b) => a + b, 0);
-    return min(res, 0.9);
+    return min(res, 1 - M);
+}
+
+function toColor(val) {
+    return color(255 * val);
+}
+
+// Changed variant of https://en.wikipedia.org/wiki/Sigmoid_function
+function sigm(dist) {
+    return 1 / (1 + exp(dist * SLOPE - BALL_SIZE + BIAS));
 }
 
 
