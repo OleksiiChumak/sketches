@@ -1,5 +1,6 @@
 # JavaScript sketches
 * [Recursive tree](tree/index.html)
 * [Metaballs](metaballs/index.html)
+* [Blob](blob/index.html)
 
 All code is written using [p5.js](https://p5js.org/)
