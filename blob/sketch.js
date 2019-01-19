@@ -2,7 +2,7 @@ const RADIUS = 25;
 const BUBBLES = 5;
 const JIGGLE_FREQUENCY = 0.02;
 const JIGGLE_DISTANCE = 3.5 * RADIUS;
-const FILL = true;
+const FILL = false;
 
 const CELL_SIZE = 1;
 
