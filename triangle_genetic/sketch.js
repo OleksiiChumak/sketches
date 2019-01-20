@@ -22,7 +22,7 @@ let bestDistance = undefined;
 
 (function () {
     let srtImg = new Image();
-    srtImg.src = 'icon.jpg';
+    srtImg.src = 'img.jpg';
 
     srtImg.onload = function () {
         let canvas = document.getElementById('canvas');
@@ -77,24 +77,18 @@ function mutateImages() {
         bestDistance = images[0].distance();
         images[0].draw(winnerCtx);
     }
-    let lik = 100 * likeness(bestDistance);
-    document.title = `G: ${generation++}. Likeness: ${lik.toFixed(3)}%`;
+    document.title = `G: ${generation++}. Likeness: ${likeness(bestDistance).toFixed(3)}%`;
 
-    //chartData.push(lik);
-    //lineChart.update();
     newImages = [];
-
     for (let i = 0; i < images.length; i++) {
         newImages.push(images[i % WINNERS].mutate(images[i].ctx));
     }
 
     images = newImages;
-    //let winner = images.reduce((min, p) => min.distance() > p.distance() ? p : min, images[0]);
-    //images = images.map(p => winner.mutate(p.ctx));
 }
 
 function likeness(distance) {
-    return 1 - distance / (255 * 4 * width * height);
+    return 100 * (1 - distance / (255 * 4 * width * height));
 }
 
 
@@ -211,13 +205,6 @@ class Color {
     static _norm(c) {
         return Math.min(Math.max(0, c), 255);
     }
-
-    /*  distance(color) {
-          let dr = this.r - color.r;
-          let dg = this.g - color.g;
-          let db = this.b - color.b;
-          return Math.sqrt(dr * dr + dg * dg + db * db)
-      }*/
 
     mutate() {
         if (Math.random() <= MUTATION_CHANCE) {
