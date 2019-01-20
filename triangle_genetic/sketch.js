@@ -88,7 +88,7 @@ function mutateImages() {
 }
 
 function likeness(distance) {
-    return 100 * (1 - distance / (255 * 4 * width * height));
+    return 100 * (1 - distance / (255 * 3 * width * height));
 }
 
 
@@ -168,7 +168,11 @@ class Triangle {
 
 
 function noise(magnitude) {
-    return Math.random() * magnitude - magnitude / 2;
+    if (Math.random() <= MUTATION_CHANCE) {
+        return Math.random() * magnitude - magnitude / 2;
+    } else {
+        return 0;
+    }
 }
 
 class Point {
@@ -178,11 +182,7 @@ class Point {
     }
 
     mutate() {
-        if (Math.random() <= MUTATION_CHANCE) {
-            return new Point(this.x + noise(POSITION_MUTATION), this.y + noise(POSITION_MUTATION));
-        } else {
-            return this.copy();
-        }
+        return new Point(this.x + noise(POSITION_MUTATION), this.y + noise(POSITION_MUTATION));
     }
 
     copy() {
@@ -207,16 +207,12 @@ class Color {
     }
 
     mutate() {
-        if (Math.random() <= MUTATION_CHANCE) {
-            return new Color(
-                this.r + noise(COLOR_MUTATION),
-                this.g + noise(COLOR_MUTATION),
-                this.b + noise(COLOR_MUTATION),
-                this.a + noise(COLOR_MUTATION)
-            );
-        } else {
-            return this.copy();
-        }
+        return new Color(
+            this.r + noise(COLOR_MUTATION),
+            this.g + noise(COLOR_MUTATION),
+            this.b + noise(COLOR_MUTATION),
+            this.a + noise(COLOR_MUTATION)
+        );
     }
 
     copy() {
