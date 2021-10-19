@@ -162,7 +162,9 @@ class Field {
         for (let x = 0; x < this.width; x++) {
             for (let y = 0; y < this.height; y++) {
                 if (this.#piecesCopy[x][y]) {
-                    func(this.#piecesCopy[x][y])
+                    if (func(this.#piecesCopy[x][y]) === true) {
+                        break;
+                    }
                 }
             }
         }
@@ -261,7 +263,7 @@ class CellPiece {
             if (neighbor == null) {
                 this.#growOn(x, y);
                 grew = true;
-             }/*else if(!this.belongsToSameCell(neighbor) && this.distanceToNucleus < neighbor.distanceToNucleus){
+            }/*else if(!this.belongsToSameCell(neighbor) && this.distanceToNucleus < neighbor.distanceToNucleus){
                this.#growOn(x, y);
                  grew = true;
              }*/
@@ -291,6 +293,7 @@ class CellPiece {
             let neighbor = this.field.get(x, y);
             if (!neighbor) {
                 placeToGrow = true;
+                return true;
             }
         });
         return placeToGrow;
@@ -302,6 +305,7 @@ class CellPiece {
             let neighbor = this.field.get(x, y);
             if (!this.belongsToSameCell(neighbor)) {
                 border = true;
+                return true;
             }
         });
         return border;
@@ -318,13 +322,16 @@ class CellPiece {
     }
 
     #loopOverNeighbors(func) {
-        CellPiece.#NEIGHBORS_DELTAS.forEach(delta => {
+        for (let i = 0; i < CellPiece.#NEIGHBORS_DELTAS.length; i++) {
+            let delta = CellPiece.#NEIGHBORS_DELTAS[i];
             let nx = this.x + delta[0];
             let ny = this.y + delta[1];
             if (!field.isOutOfBounds(nx, ny)) {
-                func(nx, ny);
+                if (func(nx, ny) === true) {
+                    break;
+                }
             }
-        });
+        }
     }
 
     isBorder() {
