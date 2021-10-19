@@ -46,7 +46,7 @@ function makeChange(x, y) {
         field.put(new CellPiece(), x, y);
     } else {
         cellPiece.removeEntireCell();
-        field.refreshBorders();
+        //field.refreshBorders();
     }
 }
 
@@ -200,13 +200,16 @@ class CellPiece {
     }
 
     removeEntireCell() {
-        this.field.forEach(cell => {
-                if (cell !== this && this.belongsToSameCell(cell)) {
-                    this.field.remove(cell.x, cell.y);
+        let field = this.field;
+        field.forEach(cell => {
+                if (this.belongsToSameCell(cell)) {
+                    cell.#loopOverNeighbors((x, y) => {
+                        field.get(x, y)?.refresh()
+                    });
+                    field.remove(cell.x, cell.y);
                 }
             }
         )
-        this.field.remove(this.x, this.y);
     }
 
     onAdd(filed, x, y) {
